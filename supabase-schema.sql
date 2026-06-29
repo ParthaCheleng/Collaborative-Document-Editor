@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS documents (
   title TEXT NOT NULL DEFAULT 'Untitled Document',
   content TEXT DEFAULT '',
   owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  is_archived BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

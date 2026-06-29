@@ -17,6 +17,7 @@ interface Document {
   created_at: string;
   updated_at: string;
   owner_name?: string;
+  is_archived: boolean;
 }
 
 export default function DashboardPage() {
@@ -131,12 +132,37 @@ export default function DashboardPage() {
   
   // Filter logic
   let displayDocs = allDocs;
-  if (filter === "mine") displayDocs = myDocs;
-  if (filter === "shared") displayDocs = sharedDocs;
+  if (filter === "mine") displayDocs = myDocs.filter(d => !d.is_archived);
+  else if (filter === "shared") displayDocs = sharedDocs.filter(d => !d.is_archived);
+  else if (filter === "archived") displayDocs = myDocs.filter(d => d.is_archived);
+  else displayDocs = allDocs.filter(d => !d.is_archived); // "all"
   
   if (searchQuery) {
     displayDocs = displayDocs.filter(d => d.title.toLowerCase().includes(searchQuery.toLowerCase()));
   }
+
+  const handleArchive = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const { error } = await supabase.from('documents').update({ is_archived: true }).eq('id', id);
+    if (!error) fetchDocuments();
+  };
+
+  const handleRestore = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const { error } = await supabase.from('documents').update({ is_archived: false }).eq('id', id);
+    if (!error) fetchDocuments();
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const confirm = window.confirm("Are you sure you want to permanently delete this document?");
+    if (!confirm) return;
+    const { error } = await supabase.from('documents').delete().eq('id', id);
+    if (!error) fetchDocuments();
+  };
 
   return (
     <div className="flex min-h-screen bg-[#F9FAFB]">
@@ -256,6 +282,11 @@ export default function DashboardPage() {
                 ownerName={doc.owner_name || activeUser.name}
                 updatedAt={doc.updated_at}
                 isShared={doc.owner_id !== activeUser.id}
+                isArchived={doc.is_archived}
+                isOwner={doc.owner_id === activeUser.id}
+                onArchive={(e) => handleArchive(e, doc.id)}
+                onRestore={(e) => handleRestore(e, doc.id)}
+                onDelete={(e) => handleDelete(e, doc.id)}
               />
             ))}
           </div>

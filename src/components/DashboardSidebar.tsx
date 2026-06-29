@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { LayoutDashboard, FileText, Users, Trash2, HeadphonesIcon, ChevronDown } from "lucide-react";
 
-export type FilterState = "all" | "mine" | "shared";
+export type FilterState = "all" | "mine" | "shared" | "archived";
 
 interface DashboardSidebarProps {
   currentFilter: FilterState;
@@ -117,10 +117,10 @@ export default function DashboardSidebar({ currentFilter, setFilter }: Dashboard
 
         <div className="pt-4 mt-4 border-t border-gray-100">
           <button 
-            disabled
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-300 cursor-not-allowed border border-transparent"
+            onClick={() => setFilter("archived")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors ${currentFilter === "archived" ? "bg-gray-50 text-gray-900 shadow-sm border border-gray-100" : "text-gray-500 hover:text-red-600 hover:bg-red-50/50 border border-transparent"}`}
           >
-            <Trash2 size={18} className="text-gray-300" />
+            <Trash2 size={18} className={currentFilter === "archived" ? "text-gray-900" : "text-gray-400"} />
             Trash / Archive
           </button>
         </div>
